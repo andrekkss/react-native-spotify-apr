@@ -1,6 +1,6 @@
 # react-native-spotify-apr
 
-library for use spotify sdk
+library for use spotify sdk in React Native app
 
 ## Installation
 
