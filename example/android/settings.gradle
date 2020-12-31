@@ -1,0 +1,8 @@
+include ':spotify-auth-release-1.2.3'
+include ':spotify-app-remote-release-0.7.1'
+rootProject.name = 'SpotifyAprExample'
+apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
+include ':app'
+
+include ':reactnativespotifyapr'
+project(':reactnativespotifyapr').projectDir = new File(rootProject.projectDir, '../../android')

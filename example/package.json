@@ -1,0 +1,25 @@
+{
+  "name": "react-native-spotify-apr-example",
+  "description": "Example app for react-native-spotify-apr",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "react": "16.13.1",
+    "react-native": "0.63.4",
+    "react-native-paper": "^4.5.0",
+    "react-native-vector-icons": "^7.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/runtime": "^7.12.5",
+    "@types/react-native-material-ui": "^1.32.2",
+    "babel-plugin-module-resolver": "^4.0.0",
+    "metro-react-native-babel-preset": "^0.64.0"
+  }
+}
