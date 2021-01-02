@@ -1,5 +1,4 @@
-export interface IHttpClientRequestParameters<T> {
+export default interface IHttpClientRequestParameters<T = undefined> {
     endPoint: string
-    requiresToken: boolean
     payload?: T
 }

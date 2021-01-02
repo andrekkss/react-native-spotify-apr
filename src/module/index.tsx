@@ -3,13 +3,17 @@ import { NativeModules } from 'react-native';
 const { SpotifyApr } = NativeModules;
 
 type SpotifyAprType = {
-  multiply(a: number, b: number): Promise<number>;
   setConfig(clientId: string, clientIdUrfCallback: string): string
   connect(callback: Function): void
   play(playlist: string): void 
   disconnect(): void
-  auth(): void
+  auth(): Promise<string>
   getToken(): Promise<string>
+  switchToLocalDevice(): void
+  descrease(): void
+  increase(): void
+  setVolumeByValue(value: number): void
+  setObserverVolume(callback: Function): void
 };
 
 export default SpotifyApr as SpotifyAprType

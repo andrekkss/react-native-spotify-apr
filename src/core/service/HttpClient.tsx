@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig } from 'axios'
-import IHttpClientRequestParameters from './IHttpClientRequestParameters';
+import type IHttpClientRequestParameters from './IHttpClientRequestParameters';
+import type IHttpClient from './IHttpClient';
 import SpotifyAPR from '../../module/index';
 
 class HttpClient implements IHttpClient {
@@ -11,6 +12,7 @@ class HttpClient implements IHttpClient {
 
             SpotifyAPR.getToken()
                 .then((token: string) => {
+                    console.log(token);
                     axios.get(this.baseUrl+endPoint, {
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -28,27 +30,44 @@ class HttpClient implements IHttpClient {
 
     post<T>(parameters: IHttpClientRequestParameters): Promise<T> { 
         return new Promise<T>((resolve, reject) => {
-          const { endPoint, payload, requiresToken } = parameters
+          const { endPoint, payload } = parameters
       
-          const options: AxiosRequestConfig = {
-            headers: {}
-          }
-      
-          if (requiresToken) {
-            SpotifyAPR.getToken()
+          SpotifyAPR.getToken()
                 .then((token: string) => {
-                    options.headers['Authorization'] = `Bearer ${token}`
+                    axios.post(this.baseUrl+endPoint, payload, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then((response: any) => {
+                        resolve(response.data as T)
+                    })
+                    .catch((response: any) => {
+                        reject(response)
+                    })
                 })
-          }
+        })
+    }
+
+    put<T>(parameters: IHttpClientRequestParameters<T>): Promise<T> { 
+        return new Promise<T>((resolve, reject) => {
+          const { endPoint, payload } = parameters
       
-          axios
-            .post(this.baseUrl+endPoint, payload, options)
-            .then((response: any) => {
-              resolve(response.data as T)
-            })
-            .catch((response: any) => {
-              reject(response)
-            })
+      
+          SpotifyAPR.getToken()
+                .then((token: string) => {
+                    axios.put(this.baseUrl+endPoint, payload, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then((response: any) => {
+                        resolve(response.data as T)
+                    })
+                    .catch((response: any) => {
+                        reject(response)
+                    })
+                })
         })
     }
 }

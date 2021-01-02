@@ -2,23 +2,23 @@ package com.reactnativespotifyapr
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import com.facebook.react.bridge.*
 import com.google.gson.Gson
 import com.reactnativespotifyapr.extensions.empty
 import com.reactnativespotifyapr.spotify.Spotify
+import com.reactnativespotifyapr.spotify.event.VolumeEvent
 import com.reactnativespotifyapr.spotify.exeception.ConfigurationNotCreatedException
 import com.reactnativespotifyapr.spotify.model.SpotifyConfigModel
 import com.spotify.sdk.android.auth.AuthorizationClient
-import com.spotify.sdk.android.auth.AuthorizationHandler
-import com.spotify.sdk.android.auth.AuthorizationResponse.Type.TOKEN
-import com.spotify.sdk.android.auth.AuthorizationResponse.Type.ERROR
 import com.spotify.sdk.android.auth.AuthorizationResponse
+import com.spotify.sdk.android.auth.AuthorizationResponse.Type.ERROR
+import com.spotify.sdk.android.auth.AuthorizationResponse.Type.TOKEN
 
 class SpotifyAprModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext), ActivityEventListener {
   private val gson: Gson = Gson()
   private var spotify: Spotify? = null
   private var token: String = String.empty
+  private var mTokenPromise: Promise? = null
 
   init {
     reactApplicationContext.addActivityEventListener(this)
@@ -26,15 +26,8 @@ class SpotifyAprModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   override fun getName(): String = MODULE_NAME
 
-  // Example method
-  // See https://reactnative.dev/docs/native-modules-android
-  @ReactMethod()
-  fun multiply(a: Int, b: Int, promise: Promise) {
-    promise.resolve(a * b)
-  }
-
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun setConfig(clientId: String, clientIdUrfCallback: String): String {
+  @ReactMethod
+  fun setConfig(clientId: String, clientIdUrfCallback: String) {
     SpotifyConfigModel().apply {
       this.clientId = clientId
       this.urlCallback = clientIdUrfCallback
@@ -42,7 +35,6 @@ class SpotifyAprModule(reactContext: ReactApplicationContext) : ReactContextBase
       spotify = Spotify()
         .setConfig(this)
     }
-    return "conected"
   }
 
   //@ReactMethod(isBlockingSynchronousMethod = true)
@@ -52,8 +44,17 @@ class SpotifyAprModule(reactContext: ReactApplicationContext) : ReactContextBase
   // return gson.toJson(spotify?.connectionParams)
   //}
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun auth(){
+  @ReactMethod
+  fun auth(promise: Promise){
+    val currentActivity = currentActivity
+
+    if (currentActivity == null) {
+      promise.reject(E_ACTIVITY_DOES_NOT_EXIST, "Activity doesn't exist")
+      return
+    }
+
+    mTokenPromise = promise
+
     spotify?.getAuthForWebApi(reactApplicationContext)
   }
 
@@ -63,9 +64,14 @@ class SpotifyAprModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun connect(onFailureCallback: Callback) {
-    spotify?.connect(reactApplicationContext, onFailureCallback)
+  fun connect(onListenerResponse: Callback) {
+    spotify?.connect(reactApplicationContext, onListenerResponse)
       ?: throw ConfigurationNotCreatedException()
+  }
+
+  @ReactMethod
+  fun switchToLocalDevice(){
+    spotify?.switchToLocalDevice()
   }
 
   @ReactMethod
@@ -76,6 +82,26 @@ class SpotifyAprModule(reactContext: ReactApplicationContext) : ReactContextBase
   @ReactMethod
   fun disconnect() = spotify?.disconnect() ?: throw ConfigurationNotCreatedException()
 
+  @ReactMethod
+  fun descrease(){
+    spotify?.descrease()
+  }
+
+  @ReactMethod
+  fun increase(){
+    spotify?.increase()
+  }
+
+  @ReactMethod
+  fun setVolumeByValue(value: Float){
+    spotify?.setVolumeByValue(value)
+  }
+
+  @ReactMethod
+  fun setObserverVolume(callback: Callback){
+    spotify?.setObserverVolume(callback)
+  }
+
   override fun onNewIntent(intent: Intent?) {}
 
   override fun onActivityResult(activity: Activity?, requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -85,9 +111,11 @@ class SpotifyAprModule(reactContext: ReactApplicationContext) : ReactContextBase
       when (response.type) {
         TOKEN -> {
           token = response.accessToken
+          mTokenPromise?.resolve(token)
         }
         ERROR -> {
-          token = response.error
+          token = String.empty
+          mTokenPromise?.reject(E_AUTHENTICATION_FAILURE, token)
         }
         else -> { }
       }
@@ -96,6 +124,8 @@ class SpotifyAprModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   companion object {
     private const val MODULE_NAME = "SpotifyApr"
+    private const val E_ACTIVITY_DOES_NOT_EXIST = "E_ACTIVITY_DOES_NOT_EXIST"
+    private const val E_AUTHENTICATION_FAILURE = "E_AUTHENTICATION_FAILURE"
     const val AUTH_REQUEST_CODE = 1337
   }
 }
