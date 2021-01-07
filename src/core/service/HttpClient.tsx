@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios'
+import axios from 'axios'
 import type IHttpClientRequestParameters from './IHttpClientRequestParameters';
 import type IHttpClient from './IHttpClient';
 import SpotifyAPR from '../../module/index';
