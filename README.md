@@ -10,6 +10,17 @@ npm install react-native-spotify-apr
 
 ## Usage
 
+### First step
+
+this library use react-native-dotenv, for store clientID and client callback of Spotify SDK
+
+For this configure .env file 
+
+```
+  SPOTIFY_CLIENT_ID=
+  SPOTIFY_CLIENT_CALLBACK=
+```
+
 ```js
 import Spotify from "react-native-spotify-apr";
 
