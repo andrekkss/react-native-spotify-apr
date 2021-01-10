@@ -11,11 +11,11 @@ npm install react-native-spotify-apr
 ## Usage
 
 ```js
-import SpotifyApr from "react-native-spotify-apr";
+import Spotify from "react-native-spotify-apr";
 
 // ...
 
-const result = await SpotifyApr.multiply(3, 7);
+const result = Spotify.connect((message: string) => console.log(message));
 ```
 
 ## Contributing
